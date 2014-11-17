@@ -9,11 +9,13 @@ class Expander {
     void send();
     void clearOutputs();
     void setSingleOutput(int index, bool signal);
+    bool _outputs[16]; // 0-7 - port A, 8-15 - port B
+    int stateA;
+    int stateB;
 
   private:
     const static int _outputs_size = 16;
     int _address;
-    bool _outputs[16]; // 0-7 - port A, 8-15 - port B
 };
 
 #endif
