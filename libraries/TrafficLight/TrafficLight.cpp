@@ -1,20 +1,20 @@
 #include <Expander.h>
 #include <TrafficLight.h>
 
-// TrafficLight::TrafficLight(Expander const &expander, int green, int yellow, int red) {
-//   _red = red;
-//   _yellow = yellow;
-//   _green = green;
-// }
+TrafficLight::TrafficLight(Expander &expander, int green, int yellow, int red) : _expander(expander) {
+  _red = red;
+  _yellow = yellow;
+  _green = green;
+}
 
 void TrafficLight::TurnOnRed() {
-  m_expander.setSingleOutput(_red, true);
+  _expander.setSingleOutput(_red, true);
 }
 
 void TrafficLight::TurnOnYellow() {
-  m_expander.setSingleOutput(_yellow, true);
+  _expander.setSingleOutput(_yellow, true);
 }
 
 void TrafficLight::TurnOnGreen() {
-  m_expander.setSingleOutput(_green, true);
+  _expander.setSingleOutput(_green, true);
 }

@@ -5,12 +5,12 @@
 
 class TrafficLight {
   public:
-    TrafficLight(Expander const &expander, int green, int yellow, int red) : m_expander(expander) {};
+    TrafficLight(Expander &expander, int green, int yellow, int red);
     void TurnOnRed();
     void TurnOnYellow();
     void TurnOnGreen();
   protected:
-    const Expander& m_expander;
+    Expander& _expander;
   private:
     int _green;
     int _yellow;
