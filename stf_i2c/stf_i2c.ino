@@ -1,12 +1,9 @@
 #include <Wire.h>
 #include <Expander.h>
-#include <TrafficLight.h>
 
-int odczyt; 
-byte dioda;
+
 int trigPin = 5;
 int echoPin = 6;
-byte states[] = {6, 1, 2, 4};
 long echoTime;
 int distance;
 int delayTime = 4000;
@@ -16,8 +13,6 @@ int outputPin = 13;
 int outputValue = 0;
 
 Expander expander(0x20); // ekspander o adresie szesnastkowym 0x20
-TrafficLight leftLights(expander, 0, 1, 2);
-TrafficLight rightLights(expander, 8, 9, 10);
 
 void setup() {
   Serial.begin(9600);
@@ -31,12 +26,22 @@ void setup() {
   expander.init();
 }
 
-void loop() {
-  // pobranie natezenia swiatla z fotorezystora
-//  odczyt = analogRead(A0); 
-//  odczyt = odczyt/4;
-//  if (odczyt < 20) odczyt = 20;
+// tymczasowe rozw.
+void sequence() {
+    expander.setSingleOutput(1, true);
+    expander.setSingleOutput(10, true);
+    
+    expander.setSingleOutput(2, true);
+    expander.setSingleOutput(9, true);
+    
+    expander.setSingleOutput(3, true);
+    expander.setSingleOutput(8, true);
+    
+    expander.setSingleOutput(2, true);
+    expander.setSingleOutput(9, true);  
+}
 
+void loop() {
   // czujnik ruchu
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -45,17 +50,15 @@ void loop() {
   
   echoTime = pulseIn(echoPin, HIGH); // odczytanie czasu trwania stanu wysokiego
   distance = echoTime / 58; // obliczenie odległości
-//  if(distance <= 200) {
-//    for(int i = 0; i < 4; i++) {
-//      expander.setOutput(states[i]);
-//      delay(delayTime);
-//    }  
-//  } else {
-//    expander.setOutput(4);
-//    delay(delayTime);
-//  }
-  leftLights.TurnOnRed();
-  rightLights.TurnOnRed();
+  
+  if(distance <= 200) {
+    sequence();
+      
+  } else {
+    expander.setSingleOutput(1, true);
+    expander.setSingleOutput(10, true);
+  }
+  
   // fotorezytor
   sensorValue = analogRead(sensorPin);
   Serial.println(sensorValue);
