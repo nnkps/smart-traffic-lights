@@ -41,8 +41,9 @@ void Expander::send() {
   Wire.beginTransmission(_address);
   Wire.write(0x12); // port A
   stateA = 0;
-  for (int i = 0 ; i < _outputs_size/2; i++) {
-    if (_outputs[i]) stateA += pow(2, i);
+  for (int i = _outputs_size/2 - 1 ; i >= 0; i--) {
+    stateA <<= 1;
+    stateA |= _outputs[i];
   }
   Wire.write(stateA);
   Wire.endTransmission();
@@ -50,8 +51,9 @@ void Expander::send() {
   Wire.beginTransmission(_address);
   Wire.write(0x13); // port B
   stateB = 0;
-  for (int i = _outputs_size/2 ; i < _outputs_size; i++) {
-    if (_outputs[i]) stateB += pow(2, i - _outputs_size/2);
+  for (int i = _outputs_size - 1 ; i >= _outputs_size/2; i--) {
+    stateB <<= 1;
+    stateB |= _outputs[i];
   }
   Wire.write(stateB);
   Wire.endTransmission();

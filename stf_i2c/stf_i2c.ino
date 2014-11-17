@@ -11,7 +11,7 @@ int sensorPin = A0;
 int sensorValue = 0;
 int outputPin = 13;
 int outputValue = 0;
-int delayTime2 = 2000;
+int delayTime2 = 500;
 
 Expander expander(0x20); // ekspander o adresie szesnastkowym 0x20
 
@@ -48,14 +48,14 @@ void sequence() {
     delay(delayTime2);
     
     expander.setSingleOutput(2, true);
-    expander.setSingleOutput(10, true);
+    expander.setSingleOutput(8, true);
     expander.send();
     delay(delayTime2);
-//    
-//    expander.setSingleOutput(1, true);
-//    expander.setSingleOutput(9, true);
-//    expander.send();
-//    delay(delayTime2);
+    
+    expander.setSingleOutput(1, true);
+    expander.setSingleOutput(9, true);
+    expander.send();
+    delay(delayTime2);
 }
 
 void loop() {
@@ -83,6 +83,4 @@ void loop() {
     expander.clearOutputs();
   }
  
-  // zapalenie odpowiednich diód
-  delay(200);
 }
