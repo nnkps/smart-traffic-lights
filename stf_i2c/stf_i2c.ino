@@ -1,5 +1,6 @@
 #include <Wire.h>
 #include <Expander.h>
+#include <TrafficLight.h>
 
 int odczyt; 
 byte dioda;
@@ -15,6 +16,8 @@ int outputPin = 13;
 int outputValue = 0;
 
 Expander expander(0x20); // ekspander o adresie szesnastkowym 0x20
+TrafficLight leftLights(expander, 0, 1, 2);
+TrafficLight rightLights(expander, 8, 9, 10);
 
 void setup() {
   Serial.begin(9600);
@@ -51,8 +54,8 @@ void loop() {
 //    expander.setOutput(4);
 //    delay(delayTime);
 //  }
-  expander.setSingleOutput(0, true);
-  expander.setSingleOutput(8, true);
+  leftLights.TurnOnRed();
+  rightLights.TurnOnRed();
   // fotorezytor
   sensorValue = analogRead(sensorPin);
   Serial.println(sensorValue);
