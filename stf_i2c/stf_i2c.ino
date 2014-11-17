@@ -2,8 +2,6 @@
 #include <Expander.h>
 #include <TrafficLight.h>
 
-int odczyt; 
-byte dioda;
 int trigPin = 5;
 int echoPin = 6;
 byte states[] = {6, 1, 2, 4};
@@ -32,10 +30,6 @@ void setup() {
 }
 
 void loop() {
-  // pobranie natezenia swiatla z fotorezystora
-//  odczyt = analogRead(A0); 
-//  odczyt = odczyt/4;
-//  if (odczyt < 20) odczyt = 20;
 
   // czujnik ruchu
   digitalWrite(trigPin, LOW);
@@ -55,7 +49,7 @@ void loop() {
 //    delay(delayTime);
 //  }
   leftLights.TurnOnRed();
-  rightLights.TurnOnRed();
+  rightLights.TurnOnYellow();
   // fotorezytor
   sensorValue = analogRead(sensorPin);
   Serial.println(sensorValue);
