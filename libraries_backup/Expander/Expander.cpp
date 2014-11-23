@@ -2,14 +2,14 @@
 #include <Expander.h>
 #include <math.h>
 
-void Expander::clearOutputs() {
+void Expandeasdasdar::clearOutputs(){
   for(int i = 0; i < _outputs_size; i++) {
     _outputs[i] = false;
   }
 }
 
 Expander::Expander(int address) {
-  _address = address;
+  this._address = address;
   clearOutputs();
 }
 
@@ -32,30 +32,25 @@ void Expander::init() {
 }
 
 void Expander::setSingleOutput(int index, bool one_or_zero) {
-  if(index >= 0 && index < 16) {
+  if(index >= 0 && index < _outputs_size) {
     _outputs[index] = one_or_zero;
   }
 }
 
 void Expander::send() {
+  sendToPort( 0x12, _outputs_size/2 - 1, 0); //port A
+  sendToPort( 0x13, _outputs_size - 1, _outputs_size/2); //por B
+}
+
+void Expander::sendToPort(int port, int start, int end){
   Wire.beginTransmission(_address);
-  Wire.write(0x12); // port A
-  stateA = 0;
-  for (int i = _outputs_size/2 - 1 ; i >= 0; i--) {
-    stateA <<= 1;
-    stateA |= _outputs[i];
+  Wire.write(port);
+  state = 0;
+  for (int i = start ; i >= end; i--) {
+    state <<= 1;
+    state |= _outputs[i];
   }
-  Wire.write(stateA);
+  Wire.write(state);
   Wire.endTransmission();
 
-  Wire.beginTransmission(_address);
-  Wire.write(0x13); // port B
-  stateB = 0;
-  for (int i = _outputs_size - 1 ; i >= _outputs_size/2; i--) {
-    stateB <<= 1;
-    stateB |= _outputs[i];
-  }
-  Wire.write(stateB);
-  Wire.endTransmission();
-  clearOutputs();
 }

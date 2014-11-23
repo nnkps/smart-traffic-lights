@@ -8,10 +8,10 @@ class Expander {
     void test();
     void send();
     void clearOutputs();
+    void sendToPort(int, int, int);
     void setSingleOutput(int index, bool signal);
     bool _outputs[16]; // 0-7 - port A, 8-15 - port B
-    int stateA;
-    int stateB;
+    int _state;
 
   private:
     const static int _outputs_size = 16;

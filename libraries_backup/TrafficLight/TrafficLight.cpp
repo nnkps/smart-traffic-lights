@@ -5,6 +5,7 @@ TrafficLight::TrafficLight(Expander &expander, int green, int yellow, int red) :
   _red = red;
   _yellow = yellow;
   _green = green;
+  this.TurnOnRed()
 }
 
 void TrafficLight::TurnOnRed() {
