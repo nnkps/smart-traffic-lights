@@ -3,34 +3,33 @@
 
 #include "Expander.h"
 #include "Job.cpp"
-
+#include "AbstractLight.h"
 #include <queue>
 
 class TrafficLight {
   public:
     TrafficLight(Expander* expander, int green, int yellow, int red, Job* turn_on_green, Job* turn_on_red);
-    void TurnOnRed();
-    void TurnOnYellow();
-    void TurnOnGreen();
+    void turnOnRed();
+    void turnOnYellow();
+    void turnOnGreen();
     
-    void RunRedJob();
-    void RunGreenJob();
+    void runRedJob(int = 0);
+    void runGreenJob(int = 0);
+    bool isDone();
     void update(int tick);
-    void change(int, int);
-    void AddJob(Job*);
+    void addJob(Job*, int = 0);
     
     std::queue<JobItem> q;
     Job* turn_on_green;
     Job* turn_on_red;
   protected:
-    Expander* _expander;
+    Expander* expander;
   private:
-    unsigned long int tick;
-    int _green;
-    int _yellow;
-    int _red;
-
-
+    void change(int, int); //used during job items processsing
+    int tick;
+    int green;
+    int yellow;
+    int red;
 };
 
 #endif

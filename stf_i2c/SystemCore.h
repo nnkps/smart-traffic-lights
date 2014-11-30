@@ -1,5 +1,7 @@
 #include "Expander.h"
 #include "TrafficLight.h"
+#include "AbstractLight.h"
+#include <Arduino.h>
 #include <vector>
 
 #ifndef SystemCore_h
@@ -7,19 +9,23 @@
 
 class SystemCore{
   public:
-    SystemCore(int);
-    void registerExpander(Expander*);
-    void registerTrafficLight(TrafficLight*);
+    SystemCore(int, int, int);
+    Expander* registerExpander(Expander*);
+    AbstractLight* registerTrafficLight(AbstractLight*);
     
-    void nextTick(unsigned long int);
-    void updateLights();
-    void send();
+    void nextTick();
+    void delayUntilNextTick();
     bool isDone();
+    std::vector<AbstractLight*> traffic_lights;
     unsigned long int tick;
     unsigned long int last_tick_update;
-    int delay;
+    int delta;
   private:
-    std::vector<TrafficLight*> traffic_lights;
+    int sensorPin, outputPin;
+    void updateLEDPower();
+    void updateLights();
+    void send();
+
     std::vector<Expander*> expanders;
 };
 

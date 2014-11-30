@@ -8,6 +8,7 @@
 #include "SystemCore.h"
 #include "Expander.h"
 #include "TrafficLight.h"
+#include "GroupLight.h"
 #include "Job.cpp"
 
 using namespace std;
@@ -26,16 +27,22 @@ int outputValue = 0;
 #define EXPANDERS 2
 #define LIGHTS 3
 
-SystemCore core(100);
-Expander* expanders[EXPANDERS] = { new Expander(0x20), new Expander(0x21) };
+SystemCore core(100, sensorPin, outputPin);
+
+Expander* expanders[EXPANDERS];
 
 Job* turnOnGreen = new Job();
 Job* turnOnRed = new Job();
 
-TrafficLight* l = new TrafficLight(expanders[0], 8, 9, 10, turnOnGreen, turnOnRed);
-TrafficLight* p = new TrafficLight(expanders[1], 8, 9, 10, turnOnGreen, turnOnRed);
+AbstractLight *top_left, *top_middle, *top_right;
+AbstractLight *bot_left, *bot_middle, *bot_right;
+AbstractLight *left;
+AbstractLight *right;
+
+GroupLight *turn_left, *turn_right, *straight, *left_road, *right_road;
 
 void setup() {
+  delay(5000);
   Serial.begin(9600);
   // prąd do rezystora
   pinMode(outputPin, OUTPUT);
@@ -45,20 +52,12 @@ void setup() {
   // ekspander
   Wire.begin(); // rozpoczęcie transmisji
   
-  turnOnGreen->registerItem( new JobItem(0, 1, 0));
-  turnOnGreen->registerItem( new JobItem(1, 0, 0));
-  turnOnGreen->registerItem( new JobItem(2, 0, 0));
   
   turnOnGreen->registerItem( new JobItem(1, 1, 5));
   turnOnGreen->registerItem( new JobItem(0, 0, 10));
   turnOnGreen->registerItem( new JobItem(1, 0, 10));
   turnOnGreen->registerItem( new JobItem(2, 1, 10));
   turnOnGreen->registerItem( new JobItem(2, 1, 20));
-  
-  
-  turnOnRed->registerItem( new JobItem(0, 0, 0));
-  turnOnRed->registerItem( new JobItem(1, 0, 0));
-  turnOnRed->registerItem( new JobItem(2, 1, 0));
   
   turnOnRed->registerItem( new JobItem(2, 0, 0));
   turnOnRed->registerItem( new JobItem(2, 1, 1));
@@ -71,18 +70,35 @@ void setup() {
   turnOnRed->registerItem( new JobItem(0, 1, 11));
   turnOnRed->registerItem( new JobItem(1, 0, 11));
   turnOnRed->registerItem( new JobItem(1, 0, 21));
-  
-  core.registerExpander(expanders[0]);
-  core.registerExpander(expanders[1]);
 
-  core.registerTrafficLight( new TrafficLight(expanders[0], 0, 1, 2, turnOnGreen, turnOnRed));
-  core.registerTrafficLight( new TrafficLight(expanders[0], 3, 4, 5, turnOnGreen, turnOnRed));
-  core.registerTrafficLight( l);
-  core.registerTrafficLight( new TrafficLight(expanders[0], 11, 12, 13, turnOnGreen, turnOnRed));
-  core.registerTrafficLight( new TrafficLight(expanders[1], 0, 1, 2, turnOnGreen, turnOnRed));
-  core.registerTrafficLight( new TrafficLight(expanders[1], 3, 4, 5, turnOnGreen, turnOnRed));
-  core.registerTrafficLight( p);
-  core.registerTrafficLight( new TrafficLight(expanders[1], 11, 12, 13, turnOnGreen, turnOnRed));
+  expanders[0] = core.registerExpander(new Expander(0x20));
+  expanders[1] = core.registerExpander(new Expander(0x21));
+
+  top_left =   core.registerTrafficLight( new TrafficLight(expanders[0], 4, 3, 2, turnOnGreen, turnOnRed));
+  right =      core.registerTrafficLight( new TrafficLight(expanders[0], 7, 6, 5, turnOnGreen, turnOnRed));
+  top_right =  core.registerTrafficLight( new TrafficLight(expanders[0], 8, 9, 10, turnOnGreen, turnOnRed));
+  top_middle = core.registerTrafficLight( new TrafficLight(expanders[0], 11, 12, 13, turnOnGreen, turnOnRed));
+  bot_middle = core.registerTrafficLight( new TrafficLight(expanders[1], 4, 3, 2, turnOnGreen, turnOnRed));
+  bot_right =  core.registerTrafficLight( new TrafficLight(expanders[1], 7, 6, 5, turnOnGreen, turnOnRed));
+  left =       core.registerTrafficLight( new TrafficLight(expanders[1], 8, 9, 10, turnOnGreen, turnOnRed));
+  bot_left =   core.registerTrafficLight( new TrafficLight(expanders[1], 11, 12, 13, turnOnGreen, turnOnRed));
+  
+  turn_right = new GroupLight();
+  turn_right->registerAbstractLight( top_left);
+  turn_right->registerAbstractLight( bot_right);
+  
+  turn_left = new GroupLight();
+  turn_left->registerAbstractLight( bot_left);
+  turn_left->registerAbstractLight( top_right);
+  
+  straight = new GroupLight();
+  straight->registerAbstractLight( top_middle);
+  straight->registerAbstractLight( bot_middle);
+
+  
+  core.registerTrafficLight( turn_right);
+  core.registerTrafficLight( turn_left);
+  core.registerTrafficLight( straight);
 }
 
 void loop() {
@@ -107,32 +123,12 @@ void loop() {
   //leftLights.TurnOnGreen();
   //rightLights.TurnOnYellow();
   // fotorezytor
-  if( core.isDone() ){
-    l->RunGreenJob();
-    l->RunRedJob();
-    
-    p->RunRedJob();
-    p->RunGreenJob();
+  if( core.isDone()){
+    turn_left->runGreenJob();
+    turn_left->runRedJob(10);
+    turn_right->runGreenJob();
+    turn_right->runRedJob(10);
   }
-  core.nextTick( millis());
-  Serial.println(core.tick);
-  
-  sensorValue = analogRead(sensorPin);
-  Serial.println(sensorValue);
-  outputValue = map(sensorValue, 0, 1023, 10, 255);
-  analogWrite(outputPin, outputValue);
-
-  //wait (100 ms - execution time) + dbg
-  unsigned long int time = millis();
-  Serial.println('W');
-  if ( (signed long int)time - (signed long int)core.last_tick_update > 0){
-    if ((signed long int)core.delay - (signed long int)( time - core.last_tick_update) > 0){
-      Serial.println(core.delay - ( time - core.last_tick_update));
-      delay( core.delay - ( time - core.last_tick_update));
-    }
-    else
-      Serial.println('K');
-  }
-  else
-    Serial.println('N');
+  core.nextTick();
+  core.delayUntilNextTick();
 }

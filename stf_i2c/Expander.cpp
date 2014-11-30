@@ -2,15 +2,16 @@
 #include "Expander.h"
 #include <math.h>
 
+Expander::Expander(int address) {
+  _address = address;
+  _state = 0;
+  clearOutputs();
+}
+
 void Expander::clearOutputs(){
   for(int i = 0; i < _outputs_size; i++) {
     _outputs[i] = false;
   }
-}
-
-Expander::Expander(int address) {
-  _address = address;
-  clearOutputs();
 }
 
 void Expander::test() {
