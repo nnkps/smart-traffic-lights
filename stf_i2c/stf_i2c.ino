@@ -52,24 +52,17 @@ void setup() {
   // ekspander
   Wire.begin(); // rozpoczęcie transmisji
   
-  
-  turnOnGreen->registerItem( new JobItem(1, 1, 5));
-  turnOnGreen->registerItem( new JobItem(0, 0, 10));
-  turnOnGreen->registerItem( new JobItem(1, 0, 10));
-  turnOnGreen->registerItem( new JobItem(2, 1, 10));
-  turnOnGreen->registerItem( new JobItem(2, 1, 20));
-  
-  turnOnRed->registerItem( new JobItem(2, 0, 0));
-  turnOnRed->registerItem( new JobItem(2, 1, 1));
-  turnOnRed->registerItem( new JobItem(2, 0, 2));
-  turnOnRed->registerItem( new JobItem(2, 1, 3));
-  turnOnRed->registerItem( new JobItem(2, 0, 4));
-  turnOnRed->registerItem( new JobItem(2, 1, 5));
-  turnOnRed->registerItem( new JobItem(2, 0, 6));
-  turnOnRed->registerItem( new JobItem(1, 1, 6));
-  turnOnRed->registerItem( new JobItem(0, 1, 11));
-  turnOnRed->registerItem( new JobItem(1, 0, 11));
-  turnOnRed->registerItem( new JobItem(1, 0, 21));
+  turnOnGreen->registerItem( new JobItem(6, 5));
+  turnOnGreen->registerItem( new JobItem(1, 10));
+ 
+  turnOnRed->registerItem( new JobItem(0, 0));
+  turnOnRed->registerItem( new JobItem(1, 1));
+  turnOnRed->registerItem( new JobItem(0, 2));
+  turnOnRed->registerItem( new JobItem(1, 3));
+  turnOnRed->registerItem( new JobItem(0, 4));
+  turnOnRed->registerItem( new JobItem(1, 5));
+  turnOnRed->registerItem( new JobItem(2, 6));
+  turnOnRed->registerItem( new JobItem(4, 11));
 
   expanders[0] = core.registerExpander(new Expander(0x20));
   expanders[1] = core.registerExpander(new Expander(0x21));

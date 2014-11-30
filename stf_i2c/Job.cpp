@@ -3,12 +3,19 @@
 #define Job_h
 
 struct JobItem{
-	JobItem(char lc, char l, int d) : lightColor(lc), light(l), delay(d){
+	JobItem(char state, int d) : state(state), delay(d){
         };
 	
-	char lightColor;
-	char light;
+	char state;
 	int delay;
+
+        char getBit(char pos){
+          char a = 1;
+          a <<= pos;
+          a &= state;
+          a >>= pos;
+          return a;
+        };
 };
 
 struct Job{

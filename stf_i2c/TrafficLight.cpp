@@ -23,12 +23,12 @@ void TrafficLight::turnOnGreen() {
 }
 
 void TrafficLight::change(int color, int new_state){
-  if (color == 0){
-      expander->setSingleOutput(red, new_state);
-  }else  if (color == 1){
-      expander->setSingleOutput(yellow, new_state);
-  }else  if (color == 2){
+  if (color == 1){
       expander->setSingleOutput(green, new_state);
+  }else  if (color == 2){
+      expander->setSingleOutput(yellow, new_state);
+  }else  if (color == 4){
+      expander->setSingleOutput(red, new_state);
   }
 }
 
@@ -48,11 +48,7 @@ void TrafficLight::addJob(Job* j, int delay){
   int start = tick + delay;
   if( !q.empty())
     start = q.back().delay + delay;
-  Serial.println("xxx");
-  Serial.println( start );
-  Serial.println(j->size());
   for( int i = 0; i < j->size(); ++i){
-    Serial.println(i);
     JobItem item = JobItem( (*j)[i]);
     item.delay += start;
     q.push(item);
@@ -64,12 +60,10 @@ void TrafficLight::update(int tick){
   this->tick = tick;
   while(!q.empty()){
     JobItem item = q.front();
-    Serial.println("Item.delay");
-    Serial.println(item.delay);
-    Serial.println("Tick");
-    Serial.println(tick);
     if( item.delay <= tick){
-      this->change( item.lightColor, item.light);
+      this->change( 1, item.getBit(0));
+      this->change( 2, item.getBit(1));
+      this->change( 4, item.getBit(2));
       q.pop();
     }
     else
