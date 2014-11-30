@@ -6,7 +6,7 @@
 #include "AbstractLight.h"
 #include <queue>
 
-class TrafficLight {
+class TrafficLight: public AbstractLight {
   public:
     TrafficLight(Expander* expander, int green, int yellow, int red, Job* turn_on_green, Job* turn_on_red);
     void turnOnRed();

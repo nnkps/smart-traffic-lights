@@ -2,21 +2,13 @@
 #ifndef Job_h
 #define Job_h
 
-enum LightColor
-{
-    RED = 0, //zamiast średników stosuje się przecinki
-    YELLOW = 1,
-    GREEN = 2
-};
-
 struct JobItem{
-	JobItem(int lc, int l, int d) : lightColor(lc), light(l), delay(d){
-
-	};
+	JobItem(char lc, char l, char d) : lightColor(lc), light(l), delay(d){
+        };
 	
-	int lightColor;
-	int light;
-	int delay;
+	char lightColor;
+	char light;
+	char delay;
 };
 
 struct Job{

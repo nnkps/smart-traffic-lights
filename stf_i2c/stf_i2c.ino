@@ -95,7 +95,6 @@ void setup() {
   straight->registerAbstractLight( top_middle);
   straight->registerAbstractLight( bot_middle);
 
-  
   core.registerTrafficLight( turn_right);
   core.registerTrafficLight( turn_left);
   core.registerTrafficLight( straight);
