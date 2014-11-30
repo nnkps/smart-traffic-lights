@@ -3,12 +3,12 @@
 #define Job_h
 
 struct JobItem{
-	JobItem(char lc, char l, char d) : lightColor(lc), light(l), delay(d){
+	JobItem(char lc, char l, int d) : lightColor(lc), light(l), delay(d){
         };
 	
 	char lightColor;
 	char light;
-	char delay;
+	int delay;
 };
 
 struct Job{
