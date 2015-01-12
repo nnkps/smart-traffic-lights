@@ -17,7 +17,7 @@ int trigPin = 5;
 int echoPin = 6;
 byte states[] = {6, 1, 2, 4};
 long echoTime;
-int mydistance;
+int mydistance = 0;
 int delayTime = 4000;
 int sensorPin = A0;
 int sensorValue = 0;
@@ -27,7 +27,7 @@ int outputValue = 0;
 #define EXPANDERS 2
 #define LIGHTS 3
 
-SystemCore core(100, sensorPin, outputPin);
+SystemCore core(700, sensorPin, outputPin);
 
 Expander* expanders[EXPANDERS];
 
@@ -68,12 +68,12 @@ void setup() {
   expanders[1] = core.registerExpander(new Expander(0x21));
 
   top_left =   core.registerTrafficLight( new TrafficLight(expanders[0], 4, 3, 2, turnOnGreen, turnOnRed));
-  right =      core.registerTrafficLight( new TrafficLight(expanders[0], 7, 6, 5, turnOnGreen, turnOnRed));
+  right =      core.registerTrafficLight( new TrafficLight(expanders[0], 7, 6, 5, turnOnGreen, turnOnRed)); //
   top_right =  core.registerTrafficLight( new TrafficLight(expanders[0], 8, 9, 10, turnOnGreen, turnOnRed));
   top_middle = core.registerTrafficLight( new TrafficLight(expanders[0], 11, 12, 13, turnOnGreen, turnOnRed));
   bot_middle = core.registerTrafficLight( new TrafficLight(expanders[1], 4, 3, 2, turnOnGreen, turnOnRed));
   bot_right =  core.registerTrafficLight( new TrafficLight(expanders[1], 7, 6, 5, turnOnGreen, turnOnRed));
-  left =       core.registerTrafficLight( new TrafficLight(expanders[1], 8, 9, 10, turnOnGreen, turnOnRed));
+  left =       core.registerTrafficLight( new TrafficLight(expanders[1], 8, 9, 10, turnOnGreen, turnOnRed)); //
   bot_left =   core.registerTrafficLight( new TrafficLight(expanders[1], 11, 12, 13, turnOnGreen, turnOnRed));
   
   turn_right = new GroupLight();
@@ -87,40 +87,44 @@ void setup() {
   straight = new GroupLight();
   straight->registerAbstractLight( top_middle);
   straight->registerAbstractLight( bot_middle);
+  
+  left_road = new GroupLight();
+  left_road->registerAbstractLight( right );
+  
+  right_road = new GroupLight();
+  right_road->registerAbstractLight( left );
 
   core.registerTrafficLight( turn_right);
   core.registerTrafficLight( turn_left);
   core.registerTrafficLight( straight);
+  core.registerTrafficLight( left_road );
+  core.registerTrafficLight( right_road );
 }
 
 void loop() {
 //  Serial.println(millis());
   // czujnik ruchu
-//  digitalWrite(trigPin, LOW);
-//  delayMicroseconds(2);
-//  digitalWrite(trigPin, HIGH);
-//  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
   
-//  echoTime = pulseIn(echoPin, HIGH); // odczytanie czasu trwania stanu wysokiego
-//  mydistance = echoTime / 58; // obliczenie odległości
-//  if(distance <= 200) {
-//    for(int i = 0; i < 4; i++) {
-//      expander.setOutput(states[i]);
-//      delay(delayTime);
-//    }  
-//  } else {
-//    expander.setOutput(4);
-//    delay(delayTime);
-//  }
-  //leftLights.TurnOnGreen();
-  //rightLights.TurnOnYellow();
-  // fotorezytor
+  echoTime = pulseIn(echoPin, HIGH); // odczytanie czasu trwania stanu wysokiego
+  mydistance = echoTime / 58; // obliczenie odległości
+//  if(mydistance > 0) {
   if( core.isDone()){
-    turn_left->runGreenJob();
-    turn_left->runRedJob(10);
+    turn_left->runRedJob();
+    turn_left->runGreenJob(10);
     turn_right->runGreenJob();
     turn_right->runRedJob(10);
+    straight->runRedJob();
+    straight->runGreenJob(10);
+    left_road->runGreenJob();
+    left_road->runRedJob(10);
+    right_road->runGreenJob();
+    right_road->runRedJob(10);
   }
   core.nextTick();
   core.delayUntilNextTick();
+//  }
 }
