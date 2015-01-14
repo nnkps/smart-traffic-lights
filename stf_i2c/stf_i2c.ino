@@ -23,6 +23,7 @@ int sensorValue = 0;
 int outputPin = 13;
 int outputValue = 0;
 int i = 0;
+boolean firstRun = true;
 
 #define EXPANDERS 2
 #define LIGHTS 3
@@ -114,7 +115,10 @@ void loop() {
   mydistance = echoTime / 58; // obliczenie odległości
 //  if(mydistance > 0) {
   if( core.isDone()){
-    group_1->runGreenJob();
+    if(firstRun) {
+      group_1->runGreenJob();
+      firstRun = false;
+    }
     i = 12;
     group_1->runRedJob(i);
     group_2->runGreenJob(i);
@@ -126,6 +130,7 @@ void loop() {
     group_4->runGreenJob(i);
     i += 12;
     group_4->runRedJob(i);
+    group_1->runGreenJob(i);
   }
   core.nextTick();
   core.delayUntilNextTick();

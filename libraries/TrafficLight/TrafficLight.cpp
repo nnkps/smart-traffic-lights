@@ -41,19 +41,19 @@ void TrafficLight::runRedJob(int delay){
 }
 
 bool TrafficLight::isDone(){
- return q.empty(); 
+ return q.empty();
 }
 
 void TrafficLight::addJob(Job* j, int delay){
   int start = tick + delay;
-  if( !q.empty())
-    start = q.back().delay + delay;
+  // if( !q.empty())
+  //   start = q.back().delay + delay;
   for( int i = 0; i < j->size(); ++i){
     JobItem item = JobItem( (*j)[i]);
     item.delay += start;
     q.push(item);
+    Serial.println( q.back().delay);
   }
-  Serial.println( q.back().delay);
 }
 
 void TrafficLight::update(int tick){
