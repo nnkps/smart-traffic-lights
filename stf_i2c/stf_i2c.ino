@@ -27,10 +27,15 @@ boolean firstRun = true;
 
 #define EXPANDERS 2
 #define LIGHTS 3
+#define BUTTONS 3
 
 SystemCore core(700, sensorPin, outputPin);
 
 Expander* expanders[EXPANDERS];
+int buttonPins[BUTTONS] = {8, 9, 10};
+int buttonStates[BUTTONS] = {0, 0, 0};
+int echoState = 0;
+
 
 Job* turnOnGreen = new Job();
 Job* turnOnRed = new Job();
@@ -45,6 +50,10 @@ GroupLight *group_1, *group_2, *group_3, *group_4;
 void setup() {
   delay(5000);
   Serial.begin(9600);
+  // buttony
+  for(int i = 0; i < BUTTONS; i++) {
+    pinMode(buttonPins[i], INPUT);
+  }
   // prąd do rezystora
   pinMode(outputPin, OUTPUT);
   // czujnik ruchu
@@ -103,8 +112,8 @@ void setup() {
   core.registerTrafficLight( group_4 );
 }
 
+
 void loop() {
-//  Serial.println(millis());
   // czujnik ruchu
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -113,7 +122,12 @@ void loop() {
   
   echoTime = pulseIn(echoPin, HIGH); // odczytanie czasu trwania stanu wysokiego
   mydistance = echoTime / 58; // obliczenie odległości
-//  if(mydistance > 0) {
+  // odczytanie stanu czujnikow
+  echoState = (mydistance <= 10);
+  for(int i = 0; i < BUTTONS; i++) {
+    buttonStates[i] = digitalRead(buttonPins[i]);
+  }
+  // glowna petla - podstawowe dzialanie bez czujnikow
   if( core.isDone()){
     if(firstRun) {
       group_1->runGreenJob();
@@ -134,5 +148,4 @@ void loop() {
   }
   core.nextTick();
   core.delayUntilNextTick();
-//  }
 }
