@@ -23,7 +23,8 @@ int sensorValue = 0;
 int outputPin = 13;
 int outputValue = 0;
 int i = 0;
-boolean firstRun = true;
+int current_state = 0;
+boolean def = false;
 
 #define EXPANDERS 2
 #define LIGHTS 3
@@ -32,8 +33,8 @@ boolean firstRun = true;
 SystemCore core(700, sensorPin, outputPin);
 
 Expander* expanders[EXPANDERS];
-int buttonPins[BUTTONS] = {8, 9, 10};
-int buttonStates[BUTTONS] = {0, 0, 0};
+int buttonPins[4] = {8, 9, 10, 0};
+int buttonStates[4] = {0, 0, 0, 0};
 int echoState = 0;
 
 
@@ -45,13 +46,13 @@ AbstractLight *bot_left, *bot_middle, *bot_right;
 AbstractLight *left;
 AbstractLight *right;
 
-GroupLight *group_1, *group_2, *group_3, *group_4;
+GroupLight *group[4];
 
 void setup() {
   delay(5000);
   Serial.begin(9600);
   // buttony
-  for(int i = 0; i < BUTTONS; i++) {
+  for(int i = 1; i < 4; i++) {
     pinMode(buttonPins[i], INPUT);
   }
   // prąd do rezystora
@@ -90,28 +91,33 @@ void setup() {
   bot_left =   core.registerTrafficLight( new TrafficLight(expanders[1], 11, 12, 13, turnOnGreen, turnOnRed));
   
   // definiujemy grupy sygnalizacji, ktore beda swiecic w ten sam sposob
-  group_1 = new GroupLight();
-  group_1->registerAbstractLight( bot_left );
+  group[2] = new GroupLight();
+  group[2]->registerAbstractLight( bot_left );
   
-  group_2 = new GroupLight();
-  group_2->registerAbstractLight( top_right );
+  group[1] = new GroupLight();
+  group[1]->registerAbstractLight( top_right );
   
-  group_3 = new GroupLight();
-  group_3->registerAbstractLight( top_middle );
-  group_3->registerAbstractLight( bot_middle );
-  group_3->registerAbstractLight( top_left );
-  group_3->registerAbstractLight( bot_right );
+  group[0] = new GroupLight();
+  group[0]->registerAbstractLight( top_middle );
+  group[0]->registerAbstractLight( bot_middle );
+  group[0]->registerAbstractLight( top_left );
+  group[0]->registerAbstractLight( bot_right );
   
-  group_4 = new GroupLight();
-  group_4->registerAbstractLight( right );
-  group_4->registerAbstractLight( left );
+  group[3] = new GroupLight();
+  group[3]->registerAbstractLight( right );
+  group[3]->registerAbstractLight( left );
 
-  core.registerTrafficLight( group_1 );
-  core.registerTrafficLight( group_2 );
-  core.registerTrafficLight( group_3 );
-  core.registerTrafficLight( group_4 );
+  core.registerTrafficLight( group[0] );
+  core.registerTrafficLight( group[1] );
+  core.registerTrafficLight( group[2] );
+  core.registerTrafficLight( group[3] );
 }
 
+boolean isAnyCar(int buttonStates[], int size){
+  for( int i = 0; i < size; ++i)
+    if (buttonStates[i]) return true;
+  return false;
+}
 
 void loop() {
   // czujnik ruchu
@@ -124,27 +130,47 @@ void loop() {
   mydistance = echoTime / 58; // obliczenie odległości
   // odczytanie stanu czujnikow
   echoState = (mydistance <= 10);
-  for(int i = 0; i < BUTTONS; i++) {
+  for(int i = 0; i < 3; i++) {
     buttonStates[i] = digitalRead(buttonPins[i]);
   }
+  buttonStates[3] = echoState;
   // glowna petla - podstawowe dzialanie bez czujnikow
   if( core.isDone()){
-    if(firstRun) {
-      group_1->runGreenJob();
-      firstRun = false;
+    if( ! isAnyCar( buttonStates, 4)){
+      if( !def ){
+        group[0]->runGreenJob();
+        def = true;
+      }
     }
-    i = 12;
-    group_1->runRedJob(i);
-    group_2->runGreenJob(i);
-    i += 12;
-    group_2->runRedJob(i);
-    group_3->runGreenJob(i);
-    i += 12;
-    group_3->runRedJob(i);
-    group_4->runGreenJob(i);
-    i += 12;
-    group_4->runRedJob(i);
-    group_1->runGreenJob(i);
+    else{
+      int counter = 0;
+      for( int i = 0; i < 4; ++i){
+        if (buttonStates[i]){
+          if(def){
+            group[0]->runRedJob();
+            def = false;
+          }
+          group[i]->runGreenJob(12 * counter);
+          group[i]->runRedJob(12 + 12 * counter);
+          ++counter;        
+        }
+        
+      }
+    }
+//    if (buttonStates[1]){
+//      
+//    }
+//    group_1->runRedJob(i);
+//    group_2->runGreenJob(i);
+//    i += 12;
+//    group_2->runRedJob(i);
+//    group_3->runGreenJob(i);
+//    i += 12;
+//    group_3->runRedJob(i);
+//    group_4->runGreenJob(i);
+//    i += 12;
+//    group_4->runRedJob(i);
+//    group_1->runGreenJob(i);
   }
   core.nextTick();
   core.delayUntilNextTick();
